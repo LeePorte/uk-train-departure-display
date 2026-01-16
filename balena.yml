@@ -63,16 +63,11 @@ data:
     - operatingHours: 8-22
     - screenBlankHours: 1-6
     - screenRotation: 2
-    - dualScreen: False
     - destinationStation:
     - timeOffset: 0
+    - dualScreen: False
     - enablePlatformLoop: false
-    - platformLoopList: 
-        - "1"
-        - "2"
-        - "3"
-        - "4"
-        - "5"
+    - platformLoopList: "1,2,3,4,5"
     - platformLoopDisplayTime: 45
     - screen1Platform:
     - screen2Platform:

@@ -533,7 +533,11 @@ try:
         platformLoopList = [p.strip() for p in platformLoopListEnv.split(',') if p.strip()]
         print(f'Using platform loop list from environment variable: {platformLoopList}')
     else:
-        platformLoopList = config['platformLoopList']
+        platformLoopListConfig = config['platformLoopList']
+        if isinstance(platformLoopListConfig, str):
+            platformLoopList = [p.strip() for p in platformLoopListConfig.split(',') if p.strip()]
+        else:
+            platformLoopList = platformLoopListConfig
     platformDisplayTime = config['platformLoopDisplayTime']
     
     currentPlatformIndex = 0
