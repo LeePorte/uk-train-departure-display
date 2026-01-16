@@ -66,6 +66,14 @@ data:
     - dualScreen: False
     - destinationStation:
     - timeOffset: 0
+    - enablePlatformLoop: false
+    - platformLoopList: 
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+    - platformLoopDisplayTime: 45
     - screen1Platform:
     - screen2Platform:
     - individualStationDepartureTime: False

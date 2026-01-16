@@ -526,6 +526,22 @@ try:
 
     regulator = framerate_regulator(config['targetFPS'])
 
+    # NEW: Platform looping variables from config
+    enablePlatformLoop = config['enablePlatformLoop']
+    platformLoopListEnv = os.environ.get('PLATFORM_LOOP_LIST', '')
+    if platformLoopListEnv:
+        platformLoopList = [p.strip() for p in platformLoopListEnv.split(',') if p.strip()]
+        print(f'Using platform loop list from environment variable: {platformLoopList}')
+    else:
+        platformLoopList = config['platformLoopList']
+    platformDisplayTime = config['platformLoopDisplayTime']
+    
+    currentPlatformIndex = 0
+    platformChangeTime = time.time()
+    
+    if enablePlatformLoop:
+        print(f'Platform looping enabled: {platformLoopList} with {platformDisplayTime}s display time')
+
     if (config['debug'] > 1):
         # render screen and sleep for specified seconds
         virtual = drawDebugScreen(device, width=widgetWidth, height=widgetHeight)
@@ -563,6 +579,16 @@ try:
                 if timeNow - timeFPS >= config['fpsTime']:
                     timeFPS = time.time()
                     print('Effective FPS: ' + str(round(regulator.effective_FPS(), 2)))
+                
+                # NEW: Check if it's time to switch platforms
+                if enablePlatformLoop and len(platformLoopList) > 0:
+                    if timeNow - platformChangeTime >= platformDisplayTime:
+                        currentPlatformIndex = (currentPlatformIndex + 1) % len(platformLoopList)
+                        platformChangeTime = timeNow
+                        print(f'Switching to platform: {platformLoopList[currentPlatformIndex]}')
+                        # Force a refresh when platform changes
+                        timeAtStart = time.time() - config["refreshTime"]
+                
                 if timeNow - timeAtStart >= config["refreshTime"]:
                     # check if debug mode is enabled 
                     if config["debug"] == True:
@@ -582,12 +608,34 @@ try:
                             departureData = data[0]
                             nextStations = data[1]
                             station = data[2]
-                            screenData = platform_filter(departureData, config["journey"]["screen1Platform"], station)
+                            
+                            # NEW: Determine which platform to display
+                            if enablePlatformLoop and len(platformLoopList) > 0:
+                                # Use platform from loop list
+                                screen1Platform = platformLoopList[currentPlatformIndex]
+                                
+                                # For dual screen mode with odd number of platforms
+                                if config['dualScreen']:
+                                    if len(platformLoopList) % 2 == 1:
+                                        # Odd number: show blank on second screen
+                                        virtual1 = drawBlankSignage(
+                                            device1, width=widgetWidth, height=widgetHeight, departureStation=station)
+                                        screen2Platform = ""
+                                    else:
+                                        # Even number: calculate second platform
+                                        screen2Index = (currentPlatformIndex + 1) % len(platformLoopList)
+                                        screen2Platform = platformLoopList[screen2Index]
+                                        screen1Data = platform_filter(departureData, screen2Platform, station)
+                                        virtual1 = drawSignage(device1, width=widgetWidth, height=widgetHeight, data=screen1Data, screen_id='screen2')
+                            else:
+                                # Use original platform configuration
+                                screen1Platform = config["journey"]["screen1Platform"]
+                                if config['dualScreen']:
+                                    screen1Data = platform_filter(departureData, config["journey"]["screen2Platform"], station)
+                                    virtual1 = drawSignage(device1, width=widgetWidth, height=widgetHeight, data=screen1Data, screen_id='screen2')
+                            
+                            screenData = platform_filter(departureData, screen1Platform, station)
                             virtual = drawSignage(device, width=widgetWidth, height=widgetHeight, data=screenData, screen_id='screen1')
-
-                            if config['dualScreen']:
-                                screen1Data = platform_filter(departureData, config["journey"]["screen2Platform"], station)
-                                virtual1 = drawSignage(device1, width=widgetWidth, height=widgetHeight, data=screen1Data, screen_id='screen2')
 
                     timeAtStart = time.time()
 
@@ -602,4 +650,3 @@ except ValueError as err:
     print(f"Error: {err}")
 # except KeyError as err:
 #     print(f"Error: Please ensure the {err} environment variable is set")
-
