@@ -527,23 +527,18 @@ try:
     regulator = framerate_regulator(config['targetFPS'])
 
     # NEW: Platform looping variables from config
-    enablePlatformLoop = config['enablePlatformLoop']
-    platformLoopListEnv = os.environ.get('PLATFORM_LOOP_LIST', '')
-    if platformLoopListEnv:
-        platformLoopList = [p.strip() for p in platformLoopListEnv.split(',') if p.strip()]
-        print(f'Using platform loop list from environment variable: {platformLoopList}')
+    loopPlatforms = config['enablePlatformLoop']
+    platformLoopListConfig = config['platformLoopList']
+    if isinstance(platformLoopListConfig, str):
+        platformLoopList = [p.strip() for p in platformLoopListConfig.split(',') if p.strip()]
     else:
-        platformLoopListConfig = config['platformLoopList']
-        if isinstance(platformLoopListConfig, str):
-            platformLoopList = [p.strip() for p in platformLoopListConfig.split(',') if p.strip()]
-        else:
-            platformLoopList = platformLoopListConfig
+        platformLoopList = platformLoopListConfig
     platformDisplayTime = config['platformLoopDisplayTime']
     
     currentPlatformIndex = 0
     platformChangeTime = time.time()
     
-    if enablePlatformLoop:
+    if loopPlatforms:
         print(f'Platform looping enabled: {platformLoopList} with {platformDisplayTime}s display time')
 
     if (config['debug'] > 1):
@@ -585,7 +580,7 @@ try:
                     print('Effective FPS: ' + str(round(regulator.effective_FPS(), 2)))
                 
                 # NEW: Check if it's time to switch platforms
-                if enablePlatformLoop and len(platformLoopList) > 0:
+                if loopPlatforms and len(platformLoopList) > 0:
                     if timeNow - platformChangeTime >= platformDisplayTime:
                         currentPlatformIndex = (currentPlatformIndex + 1) % len(platformLoopList)
                         platformChangeTime = timeNow
@@ -614,7 +609,7 @@ try:
                             station = data[2]
                             
                             # NEW: Determine which platform to display
-                            if enablePlatformLoop and len(platformLoopList) > 0:
+                            if loopPlatforms and len(platformLoopList) > 0:
                                 # Use platform from loop list
                                 screen1Platform = platformLoopList[currentPlatformIndex]
                                 
