@@ -35,6 +35,11 @@ def loadConfig():
     data["dualScreen"] = False
     if os.getenv("dualScreen", "").upper() == "TRUE":
         data["dualScreen"] = True
+    data["enablePlatformLoop"] = False
+    if os.getenv("enablePlatformLoop", "").upper() == "TRUE":
+        data["enablePlatformLoop"] = True
+    data["platformLoopList"] = os.getenv("platformLoopList") or ""
+    data["platformLoopDisplayTime"] = int(os.getenv("platformLoopDisplayTime") or 45)
     data["firstDepartureBold"] = True
     if os.getenv("firstDepartureBold", "").upper() == "FALSE":
         data["firstDepartureBold"] = False
