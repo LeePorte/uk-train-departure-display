@@ -402,7 +402,7 @@ def drawNextPlatformSignage(device, width, height, departureStation, currentPlat
     rowTwo = snapshot(width, 10, renderDepartureStation(
         departureStation, (width - stationSize) / 2), interval=config["refreshTime"])
     rowThree = snapshot(width, 10, renderPlatform(
-        platformSize, (width - platformSize) / 2), interval=config["refreshTime"])
+        currentPlatformIndex, (width - platformSize) / 2), interval=config["refreshTime"])
     # this will skip a second sometimes if set to 1, but a hotspot burns CPU
     # so set to snapshot of 0.1; you won't notice
     rowTime = snapshot(width, 14, renderTime, interval=0.1)
