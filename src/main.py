@@ -247,6 +247,12 @@ def renderDots(draw, *_):
     text = ".  .  ."
     draw.text((0, 0), text=text, font=fontBold, fill="yellow")
 
+def renderPlatform(currentPlatformIndex, xOffset):
+    def draw(draw, *_):
+        text = "Platform " + currentPlatformIndex
+        draw.text((int(xOffset), 0), text=text, font=fontBold, fill="yellow")
+
+    return draw
 
 def loadData(apiConfig, journeyConfig, config):
     runHours = []
@@ -381,6 +387,36 @@ def drawBlankSignage(device, width, height, departureStation):
 
     return virtualViewport
 
+
+def drawNextPlatformSignage(device, width, height, departureStation, currentPlatformIndex):
+    welcomeSize = int(fontBold.getlength("Welcome to"))
+    stationSize = int(fontBold.getlength(departureStation))
+    platformSize = int(fontBold.getlength("Platform " + currentPlatformIndex))
+
+    device.clear()
+
+    virtualViewport = viewport(device, width=width, height=height)
+
+    rowOne = snapshot(width, 10, renderWelcomeTo(
+        (width - welcomeSize) / 2), interval=config["refreshTime"])
+    rowTwo = snapshot(width, 10, renderDepartureStation(
+        departureStation, (width - stationSize) / 2), interval=config["refreshTime"])
+    rowThree = snapshot(width, 10, renderPlatform(
+        platformSize, (width - platformSize) / 2), interval=config["refreshTime"])
+    # this will skip a second sometimes if set to 1, but a hotspot burns CPU
+    # so set to snapshot of 0.1; you won't notice
+    rowTime = snapshot(width, 14, renderTime, interval=0.1)
+
+    if len(virtualViewport._hotspots) > 0:
+        for vhotspot, xy in virtualViewport._hotspots:
+            virtualViewport.remove_hotspot(vhotspot, xy)
+
+    virtualViewport.add_hotspot(rowOne, (0, 0))
+    virtualViewport.add_hotspot(rowTwo, (0, 12))
+    virtualViewport.add_hotspot(rowThree, (0, 24))
+    virtualViewport.add_hotspot(rowTime, (0, 50))
+
+    return virtualViewport
 
 def platform_filter(departureData, platformNumber, station):
     platformDepartures = []
@@ -616,6 +652,8 @@ try:
                             if loopPlatforms and len(platformLoopList) > 0:
                                 # Use platform from loop list for screen 1
                                 screen1Platform = platformLoopList[currentPlatformIndex]
+                                virtual = drawNextPlatformSignage(device1, width=widgetWidth, height=widgetHeight, departureStation=station, currentPlatformIndex=screen1Platform)
+                                time.sleep(2)
                                 
                                 # Handle dual screen mode
                                 if config['dualScreen']:
@@ -633,6 +671,8 @@ try:
                                         # Show next platform on second screen
                                         screen2Platform = platformLoopList[nextPlatformIndex]
                                         screen2Data = platform_filter(departureData, screen2Platform, station)
+                                        virtual1 = drawNextPlatformSignage(device1, width=widgetWidth, height=widgetHeight, departureStation=station, currentPlatformIndex=screen2Platform)
+                                        time.sleep(2)
                                         virtual1 = drawSignage(device1, width=widgetWidth, height=widgetHeight, data=screen2Data, screen_id='screen2')
                             else:
                                 # Use original platform configuration (not looping)
