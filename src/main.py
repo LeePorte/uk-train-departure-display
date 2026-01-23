@@ -247,7 +247,7 @@ def renderDots(draw, *_):
     text = ".  .  ."
     draw.text((0, 0), text=text, font=fontBold, fill="yellow")
 
-def renderPlatform(currentPlatformIndex, xOffset):
+def renderPlatformSplash(currentPlatformIndex, xOffset):
     def draw(draw, *_):
         text = "Platform " + currentPlatformIndex
         draw.text((int(xOffset), 0), text=text, font=fontBold, fill="yellow")
@@ -401,7 +401,7 @@ def drawNextPlatformSignage(device, width, height, departureStation, currentPlat
         (width - welcomeSize) / 2), interval=config["refreshTime"])
     rowTwo = snapshot(width, 10, renderDepartureStation(
         departureStation, (width - stationSize) / 2), interval=config["refreshTime"])
-    rowThree = snapshot(width, 10, renderPlatform(
+    rowThree = snapshot(width, 10, renderPlatformSplash(
         currentPlatformIndex, (width - platformSize) / 2), interval=config["refreshTime"])
     # this will skip a second sometimes if set to 1, but a hotspot burns CPU
     # so set to snapshot of 0.1; you won't notice
