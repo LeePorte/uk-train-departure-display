@@ -653,6 +653,7 @@ try:
                                 # Use platform from loop list for screen 1
                                 screen1Platform = platformLoopList[currentPlatformIndex]
                                 virtual = drawNextPlatformSignage(device1, width=widgetWidth, height=widgetHeight, departureStation=station, currentPlatformIndex=screen1Platform)
+                                virtual.refresh() 
                                 time.sleep(2)
                                 
                                 # Handle dual screen mode
@@ -672,6 +673,7 @@ try:
                                         screen2Platform = platformLoopList[nextPlatformIndex]
                                         screen2Data = platform_filter(departureData, screen2Platform, station)
                                         virtual1 = drawNextPlatformSignage(device1, width=widgetWidth, height=widgetHeight, departureStation=station, currentPlatformIndex=screen2Platform)
+                                        virtual.refresh()
                                         time.sleep(2)
                                         virtual1 = drawSignage(device1, width=widgetWidth, height=widgetHeight, data=screen2Data, screen_id='screen2')
                             else:
