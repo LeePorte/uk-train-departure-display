@@ -624,7 +624,10 @@ try:
                         else:
                             currentPlatformIndex = (currentPlatformIndex + 1) % len(platformLoopList)
                         platformChangeTime = timeNow
-                        print(f'Switching to platform: {platformLoopList[currentPlatformIndex]}')
+                        if config['dualScreen']:
+                            print(f'Switching to platforms: {platformLoopList[currentPlatformIndex -1]} and {platformLoopList[currentPlatformIndex]}')
+                        else:
+                            print(f'Switching to platform: {platformLoopList[currentPlatformIndex]}')
                         # Force a refresh when platform changes
                         timeAtStart = time.time() - config["refreshTime"]
                 
